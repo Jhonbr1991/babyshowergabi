@@ -492,7 +492,28 @@ qsa('.item').forEach(card => {
   items[key] = { key, title, note };
 });
 
-// 4) Render de e
+// 4) Render de estado de reservas en tiempo real
+const reservationsRef = db.ref('babyshower_gabriela/reservations');
+reservationsRef.on('value', snap => {
+  const data = snap.val() || {};
+  for (const key in items){
+    const r = data[key];
+    const card = qs(`[data-key="${key}"]`);
+    if (!card) continue;
+    const btn = qs(`button[data-id="${key}"][data-act="reserve"]`, card);
+    const badge = qs(`[data-badge="${key}"]`);
+
+    if (r && r.reserved){
+      if (btn){ btn.disabled = true; btn.textContent = 'Ya reservado'; }
+      if (badge){ badge.textContent = `Reservado por ${r.name || '—'}`; }
+    } else {
+      if (btn){ btn.disabled = false; btn.textContent = 'Reservar'; }
+      if (badge){ badge.textContent = ''; }
+    }
+  }
+});
+
+// 5) Modal para pedir nombre y (opcional) mensaje
 const modal = document.createElement('div');
 modal.className = 'modal';
 modal.innerHTML = `
@@ -533,35 +554,6 @@ addEventListener('click', (e) => {
   if(act === 'reserve'){
     openModal(id);
   }
-  if(act === 'cancel'){
-    const key = id;
-    const pin = prompt('PIN de anfitrión para cancelar:');
-    if(!pin) return;
-    const ref = reservationsRef.child(key);
-    ref.get().then(snap => {
-      if(!snap.exists() || !snap.val().reserved){
-        alert('Este artículo no está reservado.');
-        return Promise.reject('not_reserved');
-      }
-      const current = snap.val();
-      const payload = {
-        reserved: false,
-        name: current.name,
-        ts: current.ts,
-        pin: pin,
-        cancelledBy: 'admin',
-        cancelTs: Date.now()
-      };
-      return ref.set(payload);
-    }).then(()=>{
-      alert('Reserva cancelada. El artículo volvió a quedar libre.');
-    }).catch(err=>{
-      if (err !== 'not_reserved'){
-        console.error(err);
-        alert('No se pudo cancelar. Revisa el PIN o las reglas.');
-      }
-    });
-  }
 });
 
 qs('#resv_ok', modal).addEventListener('click', async ()=>{
@@ -579,7 +571,7 @@ qs('#resv_ok', modal).addEventListener('click', async ()=>{
       closeModal();
       return;
     }
-    // Guardamos la reserva
+    // Guardamos la reserva (bloquea para siempre por reglas en el servidor)
     const payload = {
       reserved: true,
       name,
