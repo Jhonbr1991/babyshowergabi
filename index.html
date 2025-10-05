@@ -13,6 +13,7 @@
     --malva:#ffeef6;
     --gris:#6b7280;
     --verde:#10b981;
+    --rojo:#ef4444;
   }
   * { box-sizing:border-box; }
   body {
@@ -36,10 +37,11 @@
   .intro { background: #fff6fb; border:1px dashed var(--rosa-osc); padding:14px 16px; border-radius:16px; margin: 10px 0 18px; }
   .intro b { color:#84284e; }
   .row { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin: 10px 0 18px; }
-  .item { border:1px solid #f5c5dd; border-radius:16px; padding:12px 12px 10px; background:linear-gradient(180deg, #fff, #fff9fc); }
+  .item { border:1px solid #f5c5dd; border-radius:16px; padding:12px 12px 10px; background:linear-gradient(180deg, #fff, #fff9fc); position:relative; }
   .item h3 { font-size:16px; margin:0 0 6px; color:#7a214e; }
   .tag { display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; background:#ffe3f2; color:#7a214e; border:1px solid #ffd1ea; }
   .desc { font-size:13px; color:var(--gris); margin:6px 0 10px; min-height: 34px; }
+  .badge { position:absolute; top:10px; right:10px; font-size:11px; padding:3px 8px; border-radius:999px; border:1px solid #ffd1ea; background:#fff0f7; color:#7a214e; }
   .controls { display:flex; gap:8px; flex-wrap:wrap; }
   button, .ghost { border-radius:12px; padding:8px 10px; font-weight:600; border:2px solid var(--rosa-osc);
                     background: white; color:#7a214e; cursor:pointer; transition: transform .06s ease, box-shadow .15s ease, background .2s; }
@@ -49,6 +51,7 @@
   .ok { border-color: var(--verde); color:#065f46; }
   .ok:hover { background:#ecfdf5; }
   .muted { border-color:#e5e7eb; color:#374151; }
+  .danger { border-color: var(--rojo); color:#7f1d1d; }
   .flex { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
   .hint { color:var(--gris); font-size:12px; }
   footer { text-align:center; color:var(--gris); padding: 8px 0 24px; font-size:12px; }
@@ -60,6 +63,14 @@
   .banner {text-align:center; padding:10px 0; margin-bottom:6px;}
   .banner span {background:#fff0f7; border:1px solid #ffd5ea; border-radius:999px; padding:6px 10px; font-size:12px; color:#7a214e;}
   .place { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-top:8px; }
+  /* Modal */
+  .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);padding:16px;}
+  .modal.open{display:flex;}
+  .modal>div{background:#fff;border-radius:16px;padding:16px;max-width:420px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,.2);border:2px solid #ffd7eb}
+  .modal h4{margin:0 0 8px;color:#7a214e}
+  .modal label{display:block;font-size:13px;color:#374151;margin:8px 0 4px}
+  .modal input,.modal textarea{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px}
+  .modal .rowbtn{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 </style>
 </head>
 <body>
@@ -79,11 +90,11 @@
 
 <main class="card">
   <div class="intro">
-    <p><b>¡Gracias por celebrar con nosotros!</b> Escoge un regalo de la lista. Puedes marcarlo como “reservado” para evitar duplicados y compartir tu elección por WhatsApp.</p>
+    <p><b>¡Gracias por celebrar con nosotros!</b> Escoge un regalo de la lista. Al pulsar <b>Reservar</b>, podrás escribir tu nombre; la reserva quedará <b>visible para todos</b> y se enviará una <b>confirmación por WhatsApp</b> a los anfitriones.</p>
   </div>
 
   <div class="flex">
-    <div class="hint">Tip: toca “Reservar” para marcarlo en tu dispositivo.</div>
+    <div class="hint">Tip: si un artículo ya está reservado, verás quién lo tomó.</div>
     <div>
       <a class="primary" id="whatsappRSVP" target="_blank" rel="noopener">Confirmar asistencia (WhatsApp)</a>
       <a class="ghost" id="mapLink" target="_blank" rel="noopener">Ver mapa</a>
@@ -93,390 +104,496 @@
   <div class="divider"></div>
 
   <section id="grid" class="row">
-    
-    <!-- PRIMERA PARTE: todos los ítems (excepto pañales y quitados) -->
+
+    <!-- Ítems (según versión final del usuario). Aseguramos que data-id == data-key en botones. -->
     <article class="item" data-key="it7">
+      <span class="badge" data-badge="it7"></span>
       <h3>Biberones</h3>
-      <span class="tag">lactancia</span>
-      <p class="desc">anticolicos.</p>
+      <span class="tag">Lactancia</span>
+      <p class="desc">Anticólicos.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it8">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it8">Marcar reservado</button>
-        <button class="muted" data-act="copy" data-id="it8">Copiar</button>
+        <button class="primary" data-act="reserve" data-id="it7">Reservar</button>
+        <button class="muted" data-act="copy" data-id="it7">Copiar</button>
       </div>
     </article>
-    
+
     <article class="item" data-key="it8">
+      <span class="badge" data-badge="it8"></span>
       <h3>Toallitas húmedas (x6)</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Sin fragancia, para piel sensible.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it8">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it8">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it8">Reservar</button>
         <button class="muted" data-act="copy" data-id="it8">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it9">
+      <span class="badge" data-badge="it9"></span>
       <h3>Crema anti-rozaduras</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Con óxido de zinc.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it9">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it9">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it9">Reservar</button>
         <button class="muted" data-act="copy" data-id="it9">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it10">
+      <span class="badge" data-badge="it10"></span>
       <h3>Shampoo & jabón neutro bebé</h3>
       <span class="tag">Baño</span>
       <p class="desc">pH suave, hipoalergénico.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it10">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it10">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it10">Reservar</button>
         <button class="muted" data-act="copy" data-id="it10">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it11">
+      <span class="badge" data-badge="it11"></span>
       <h3>Bañera para bebé con soporte</h3>
       <span class="tag">Baño</span>
       <p class="desc">Con soporte antideslizante.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it11">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it11">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it11">Reservar</button>
         <button class="muted" data-act="copy" data-id="it11">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it12">
+      <span class="badge" data-badge="it12"></span>
       <h3>Toallas con capucha (x2)</h3>
       <span class="tag">Baño</span>
       <p class="desc">Algodón suave.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it12">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it12">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it12">Reservar</button>
         <button class="muted" data-act="copy" data-id="it12">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it13">
+      <span class="badge" data-badge="it13"></span>
       <h3>Manta/Swaddle muselina (x3)</h3>
       <span class="tag">Ropa & Ropa de cama</span>
       <p class="desc">Ligera para envolver.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it13">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it13">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it13">Reservar</button>
         <button class="muted" data-act="copy" data-id="it13">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it14">
+      <span class="badge" data-badge="it14"></span>
       <h3>Mantitas afelpadas (x2)</h3>
       <span class="tag">Ropa & Ropa de cama</span>
       <p class="desc">Para abrigo.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it14">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it14">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it14">Reservar</button>
         <button class="muted" data-act="copy" data-id="it14">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it15">
+      <span class="badge" data-badge="it15"></span>
       <h3>Babitas / Paños de eructo (x6)</h3>
       <span class="tag">Ropa & Ropa de cama</span>
       <p class="desc">Absorbentes.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it15">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it15">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it15">Reservar</button>
         <button class="muted" data-act="copy" data-id="it15">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it16">
+      <span class="badge" data-badge="it16"></span>
       <h3>Bodys manga corta 0–3m (x5)</h3>
       <span class="tag">Ropa</span>
       <p class="desc">Algodón 100%.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it16">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it16">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it16">Reservar</button>
         <button class="muted" data-act="copy" data-id="it16">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it17">
+      <span class="badge" data-badge="it17"></span>
       <h3>Bodys manga larga 3–6m (x5)</h3>
       <span class="tag">Ropa</span>
       <p class="desc">Para clima fresco.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it17">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it17">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it17">Reservar</button>
         <button class="muted" data-act="copy" data-id="it17">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it18">
+      <span class="badge" data-badge="it18"></span>
       <h3>Pijamas enterizas 0–3m (x4)</h3>
       <span class="tag">Ropa</span>
       <p class="desc">Con broches.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it18">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it18">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it18">Reservar</button>
         <button class="muted" data-act="copy" data-id="it18">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it19">
+      <span class="badge" data-badge="it19"></span>
       <h3>Medias y mitones (x6)</h3>
       <span class="tag">Ropa</span>
       <p class="desc">Protegen del frío y rasguños.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it19">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it19">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it19">Reservar</button>
         <button class="muted" data-act="copy" data-id="it19">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it20">
+      <span class="badge" data-badge="it20"></span>
       <h3>Gorritos algodón (x3)</h3>
       <span class="tag">Ropa</span>
       <p class="desc">Recién nacida.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it20">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it20">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it20">Reservar</button>
         <button class="muted" data-act="copy" data-id="it20">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it21">
+      <span class="badge" data-badge="it21"></span>
       <h3>Baberos (x6)</h3>
       <span class="tag">Alimentación</span>
       <p class="desc">Para leche y babeo.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it21">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it21">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it21">Reservar</button>
         <button class="muted" data-act="copy" data-id="it21">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it25">
+      <span class="badge" data-badge="it25"></span>
       <h3>Chupón + clip (x2)</h3>
       <span class="tag">Confort</span>
       <p class="desc">Silicona grado médico.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it25">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it25">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it25">Reservar</button>
         <button class="muted" data-act="copy" data-id="it25">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it26">
+      <span class="badge" data-badge="it26"></span>
       <h3>Cojín de lactancia</h3>
       <span class="tag">Lactancia</span>
       <p class="desc">Ergonómico.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it26">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it26">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it26">Reservar</button>
         <button class="muted" data-act="copy" data-id="it26">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it27">
+      <span class="badge" data-badge="it27"></span>
       <h3>Discos protectores lactancia</h3>
       <span class="tag">Lactancia</span>
       <p class="desc">Reutilizables o desechables.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it27">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it27">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it27">Reservar</button>
         <button class="muted" data-act="copy" data-id="it27">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it28">
+      <span class="badge" data-badge="it28"></span>
       <h3>Bolsas para leche materna</h3>
       <span class="tag">Lactancia</span>
       <p class="desc">Para congelar/guardar.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it28">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it28">Marcar reservado</button>
-        <button class="muted" data-act="copy" data-id="it28">Copiar</button>
-      </div>
-    </article>
-    
-<article class="item" data-key="it29">
-      <h3>Portabebes tipo canguro</h3>
-      <span class="tag">Paseo & Cambio</span>
-      <p class="desc">Para salidas.</p>
-      <div class="controls">
-        <button class="primary" data-act="wa" data-id="it28">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it28">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it28">Reservar</button>
         <button class="muted" data-act="copy" data-id="it28">Copiar</button>
       </div>
     </article>
 
-    <article class="item" data-key="it30">
-      <h3>Detergente para bebé</h3>
-      <span class="tag">Limpieza</span>
-      <p class="desc">Hipoalergénico.</p>
+    <article class="item" data-key="it29">
+      <span class="badge" data-badge="it29"></span>
+      <h3>Portabebés tipo canguro</h3>
+      <span class="tag">Paseo & Cambio</span>
+      <p class="desc">Para salidas.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it29">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it29">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it29">Reservar</button>
         <button class="muted" data-act="copy" data-id="it29">Copiar</button>
       </div>
     </article>
 
-    <article class="item" data-key="it31">
-      <h3>Cambiador color blanco</h3>
-      <span class="tag">Paseo & Cambio</span>
-      <p class="desc">Para salidas.</p>
+    <article class="item" data-key="it30">
+      <span class="badge" data-badge="it30"></span>
+      <h3>Detergente para bebé</h3>
+      <span class="tag">Limpieza</span>
+      <p class="desc">Hipoalergénico.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it30">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it30">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it30">Reservar</button>
         <button class="muted" data-act="copy" data-id="it30">Copiar</button>
       </div>
     </article>
 
+    <article class="item" data-key="it31">
+      <span class="badge" data-badge="it31"></span>
+      <h3>Cambiador color blanco</h3>
+      <span class="tag">Paseo & Cambio</span>
+      <p class="desc">Para salidas.</p>
+      <div class="controls">
+        <button class="primary" data-act="reserve" data-id="it31">Reservar</button>
+        <button class="muted" data-act="copy" data-id="it31">Copiar</button>
+      </div>
+    </article>
+
     <article class="item" data-key="it32">
+      <span class="badge" data-badge="it32"></span>
       <h3>Colchita y sábanas para cuna (juego)</h3>
       <span class="tag">Ropa de cama</span>
       <p class="desc">Extras siempre útiles.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it31">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it31">Marcar reservado</button>
-        <button class="muted" data-act="copy" data-id="it31">Copiar</button>
+        <button class="primary" data-act="reserve" data-id="it32">Reservar</button>
+        <button class="muted" data-act="copy" data-id="it32">Copiar</button>
       </div>
     </article>
 
     <!-- ÚLTIMOS: todos los pañales al final -->
     <article class="item" data-key="it0">
+      <span class="badge" data-badge="it0"></span>
       <h3>Pañales RN/0 (pack)</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Hipoalergénicos.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it0">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it0">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it0">Reservar</button>
         <button class="muted" data-act="copy" data-id="it0">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it1">
+      <span class="badge" data-badge="it1"></span>
       <h3>Pañales RN/0 (pack) — Extra 1</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Prioridad alta (recién nacidos).</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it1">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it1">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it1">Reservar</button>
         <button class="muted" data-act="copy" data-id="it1">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it2">
+      <span class="badge" data-badge="it2"></span>
       <h3>Pañales RN/0 (pack) — Extra 2</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Prioridad alta (recién nacidos).</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it2">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it2">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it2">Reservar</button>
         <button class="muted" data-act="copy" data-id="it2">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it3">
+      <span class="badge" data-badge="it3"></span>
       <h3>Pañales Talla 1 (pack)</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Para usar al mes 1–2.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it3">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it3">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it3">Reservar</button>
         <button class="muted" data-act="copy" data-id="it3">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it4">
+      <span class="badge" data-badge="it4"></span>
       <h3>Pañales Talla 1 (pack) — Extra</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Stock adicional.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it4">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it4">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it4">Reservar</button>
         <button class="muted" data-act="copy" data-id="it4">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it5">
+      <span class="badge" data-badge="it5"></span>
       <h3>Pañales Talla 2 (pack)</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Para meses 3–4.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it5">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it5">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it5">Reservar</button>
         <button class="muted" data-act="copy" data-id="it5">Copiar</button>
       </div>
     </article>
 
     <article class="item" data-key="it6">
+      <span class="badge" data-badge="it6"></span>
       <h3>Pañales Talla 3 (pack)</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Para meses 5–6.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it6">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it6">Marcar reservado</button>
+        <button class="primary" data-act="reserve" data-id="it6">Reservar</button>
         <button class="muted" data-act="copy" data-id="it6">Copiar</button>
       </div>
     </article>
 
-    <article class="item" data-key="it7">
+    <article class="item" data-key="it7p4">
+      <span class="badge" data-badge="it7p4"></span>
       <h3>Pañales Talla 4 (pack)</h3>
       <span class="tag">Higiene</span>
       <p class="desc">Para meses 7–9.</p>
       <div class="controls">
-        <button class="primary" data-act="wa" data-id="it7">Reservar</button>
-        <button class="ok" data-act="toggle" data-id="it7">Marcar reservado</button>
-        <button class="muted" data-act="copy" data-id="it7">Copiar</button>
+        <button class="primary" data-act="reserve" data-id="it7p4">Reservar</button>
+        <button class="muted" data-act="copy" data-id="it7p4">Copiar</button>
       </div>
     </article>
 
   </section>
 
   <div class="divider"></div>
-  <div class="banner"><span>Hecho con amor para <b>Gabriela Eloísa</b>. Última actualización: 04/10/2025</span></div>
+  <div class="banner"><span>Hecho con amor para <b>Gabriela Eloísa</b>. Última actualización: 04/10/2025 — Reservas en tiempo real</span></div>
   <footer>
-    <span class="hint">La marca “Reservado” se guarda solo en tu dispositivo (LocalStorage). Esta página funciona sin internet.</span>
+    <span class="hint">Las reservas se guardan en la nube y se muestran en tiempo real. Si WhatsApp no se abre automáticamente, tu navegador pedirá confirmación para enviar.</span>
   </footer>
 </main>
 
+<!-- Firebase SDK (compat para simplicidad). Sustituye firebaseConfig con tus claves del proyecto. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-// Enhance: reserved toggle & share per item (progressive enhancement)
-document.addEventListener('click', (e) => {
+// 1) CONFIGURA TU PROYECTO FIREBASE AQUÍ
+// Crea un proyecto en https://console.firebase.google.com, habilita Realtime Database en modo test o con reglas seguras,
+// y pega tu config a continuación.
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://TU_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_PROJECT_ID.appspot.com",
+  messagingSenderId: "",
+  appId: ""
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const ADMIN_PHONE = "+593983379301"; // WhatsApp del anfitrión
+
+// 2) Utilidades DOM
+function qs(sel, ctx=document){ return ctx.querySelector(sel); }
+function qsa(sel, ctx=document){ return Array.from(ctx.querySelectorAll(sel)); }
+
+// 3) Construir catálogo de items desde el DOM
+const items = {};
+qsa('.item').forEach(card => {
+  const key = card.getAttribute('data-key');
+  const title = qs('h3', card).textContent.trim();
+  const note = qs('.desc', card)?.textContent.trim() || '';
+  items[key] = { key, title, note };
+});
+
+// 4) Render de estado de reservas en tiempo real
+const reservationsRef = db.ref('babyshower_gabriela/reservations');
+reservationsRef.on('value', snap => {
+  const data = snap.val() || {};
+  for (const key in items){
+    const r = data[key];
+    const card = qs(`[data-key="${key}"]`);
+    const btn = qs(`button[data-id="${key}"][data-act="reserve"]`, card);
+    const badge = qs(`[data-badge="${key}"]`);
+    if (!card || !btn) continue;
+    if (r && r.reserved){
+      btn.disabled = true;
+      btn.textContent = 'Ya reservado';
+      badge.textContent = `Reservado por ${r.name || '—'}`;
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Reservar';
+      badge.textContent = '';
+    }
+  }
+});
+
+// 5) Modal para pedir nombre y (opcional) mensaje
+const modal = document.createElement('div');
+modal.className = 'modal';
+modal.innerHTML = `
+  <div>
+    <h4>Confirma tu reserva</h4>
+    <p style="font-size:13px;color:#6b7280">Escribe tu nombre para que todos vean quién reservó este regalo.</p>
+    <label>Tu nombre</label>
+    <input type="text" id="resv_name" placeholder="Ej. Ana Pérez" />
+    <label>Mensaje opcional</label>
+    <textarea id="resv_msg" rows="3" placeholder="Ej. Lo llevaré el día del evento"></textarea>
+    <div class="rowbtn">
+      <button class="muted" id="resv_cancel">Cancelar</button>
+      <button class="primary" id="resv_ok">Confirmar</button>
+    </div>
+  </div>`;
+
+document.body.appendChild(modal);
+let pendingKey = null;
+
+function openModal(key){ pendingKey = key; modal.classList.add('open'); qs('#resv_name').focus(); }
+function closeModal(){ modal.classList.remove('open'); pendingKey = null; }
+qs('#resv_cancel', modal).addEventListener('click', closeModal);
+
+// 6) Acciones de botones
+addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if(!btn) return;
   const act = btn.dataset.act;
   const id = btn.dataset.id;
   if(!act || !id) return;
-  if(act === 'toggle') {
-    const key = 'reserve_'+id;
-    const v = localStorage.getItem(key) === '1' ? '0' : '1';
-    localStorage.setItem(key, v);
-    // Update button label
-    btn.textContent = (v === '1') ? '✓ Reservado' : 'Marcar reservado';
-  } else if(act === 'copy') {
-    const card = document.querySelector(`[data-key="${id}"]`);
-    const title = card.querySelector('h3').textContent.trim();
-    const note = card.querySelector('.desc').textContent.trim();
+
+  if(act === 'copy'){
+    const { title, note } = items[id];
     navigator.clipboard.writeText(`${title} — ${note}`);
     btn.textContent = 'Copiado';
-    setTimeout(() => btn.textContent = 'Copiar', 1200);
-  } else if(act === 'wa') {
-    const card = document.querySelector(`[data-key="${id}"]`);
-    const title = card.querySelector('h3').textContent.trim();
-    const note = card.querySelector('.desc').textContent.trim();
-    const msg = encodeURIComponent(`Hola 👋 Quiero reservar este regalo para el baby shower de Gabriela Eloísa:\n- ${title} (nota: ${note})`);
-    window.open('https://wa.me/?text='+msg, '_blank');
+    setTimeout(()=>btn.textContent='Copiar',1200);
+  }
+  if(act === 'reserve'){
+    openModal(id);
   }
 });
 
-// RSVP and Map buttons
+qs('#resv_ok', modal).addEventListener('click', async ()=>{
+  const name = qs('#resv_name').value.trim();
+  const msg = qs('#resv_msg').value.trim();
+  if(!name){ alert('Por favor escribe tu nombre.'); return; }
+  const key = pendingKey; if(!key){ return; }
+  const item = items[key];
+  const ref = reservationsRef.child(key);
+  try{
+    // Comprobamos si ya está reservado
+    const snap = await ref.get();
+    if(snap.exists() && snap.val().reserved){
+      alert('Este artículo ya fue reservado por otra persona.');
+      closeModal();
+      return;
+    }
+    // Guardamos la reserva
+    const payload = {
+      reserved: true,
+      name,
+      note: msg || '',
+      ts: Date.now()
+    };
+    await ref.set(payload);
+    // Log histórico opcional
+    await db.ref('babyshower_gabriela/logs').push({ key, ...payload });
+    closeModal();
+
+    // Abrimos WhatsApp al anfitrión con el mensaje de confirmación listo para enviar
+    const text = `Hola, confirmo mi reserva para el Baby Shower de Gabriela Eloísa:%0A• Artículo: ${encodeURIComponent(item.title)}%0A• Nota: ${encodeURIComponent(item.note)}%0A• Mi nombre: ${encodeURIComponent(name)}${msg?`%0A• Mensaje: ${encodeURIComponent(msg)}`:''}`;
+    const wa = `https://wa.me/${ADMIN_PHONE.replace('+','')}?text=${text}`;
+    window.open(wa, '_blank');
+  } catch(err){
+    console.error(err);
+    alert('No se pudo guardar la reserva. Revisa tu conexión e inténtalo de nuevo.');
+  }
+});
+
+// 7) RSVP y mapa
 (function setupExtras(){
   const rsvp = document.getElementById('whatsappRSVP');
   if (rsvp) {
