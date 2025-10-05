@@ -90,7 +90,7 @@
 
 <main class="card">
   <div class="intro">
-    <p><b>¡Gracias por celebrar con nosotros!</b> Escoge un regalo de la lista. Al pulsar <b>Reservar</b>, podrás escribir tu nombre; la reserva quedará <b>visible para todos</b>, se enviará una <b>confirmación por WhatsApp</b> a los anfitriones y el artículo quedará <b>bloqueado</b> (no se puede sobrescribir).</p>
+    <p><b>¡Gracias por celebrar con nosotros!</b> Escoge un regalo y pulsa <b>Reservar</b> para escribir tu nombre. La reserva queda <b>visible para todos</b>, se envía confirmación por <b>WhatsApp</b> a los anfitriones y el artículo queda bloqueado. <u>Si hay un error</u>, los anfitriones pueden <b>cancelar</b> con <b>PIN</b>.</p>
   </div>
 
   <div class="flex">
@@ -502,13 +502,24 @@ reservationsRef.on('value', snap => {
     if (!card) continue;
     const btn = qs(`button[data-id="${key}"][data-act="reserve"]`, card);
     const badge = qs(`[data-badge="${key}"]`);
+    let btnCancel = qs(`button[data-id="${key}"][data-act="cancel"]`, card);
 
     if (r && r.reserved){
       if (btn){ btn.disabled = true; btn.textContent = 'Ya reservado'; }
       if (badge){ badge.textContent = `Reservado por ${r.name || '—'}`; }
+      // crear botón cancelar con PIN si no existe
+      if (!btnCancel){
+        btnCancel = document.createElement('button');
+        btnCancel.className = 'danger';
+        btnCancel.dataset.act = 'cancel';
+        btnCancel.dataset.id = key;
+        btnCancel.textContent = 'Cancelar (PIN)';
+        card.querySelector('.controls').appendChild(btnCancel);
+      }
     } else {
       if (btn){ btn.disabled = false; btn.textContent = 'Reservar'; }
       if (badge){ badge.textContent = ''; }
+      if (btnCancel){ btnCancel.remove(); }
     }
   }
 });
@@ -554,6 +565,35 @@ addEventListener('click', (e) => {
   if(act === 'reserve'){
     openModal(id);
   }
+  if(act === 'cancel'){
+    const key = id;
+    const pin = prompt('PIN de anfitrión para cancelar:');
+    if(!pin) return;
+    const ref = reservationsRef.child(key);
+    ref.get().then(snap => {
+      if(!snap.exists() || !snap.val().reserved){
+        alert('Este artículo no está reservado.');
+        return Promise.reject('not_reserved');
+      }
+      const current = snap.val();
+      const payload = {
+        reserved: false,
+        name: current.name, // debe coincidir con el original (reglas)
+        ts: current.ts,     // debe coincidir con el original (reglas)
+        pin: pin,
+        cancelledBy: 'admin',
+        cancelTs: Date.now()
+      };
+      return ref.set(payload);
+    }).then(()=>{
+      alert('Reserva cancelada. El artículo volvió a quedar libre.');
+    }).catch(err=>{
+      if (err !== 'not_reserved'){
+        console.error(err);
+        alert('No se pudo cancelar. Revisa el PIN o las reglas.');
+      }
+    });
+  }
 });
 
 qs('#resv_ok', modal).addEventListener('click', async ()=>{
@@ -571,7 +611,7 @@ qs('#resv_ok', modal).addEventListener('click', async ()=>{
       closeModal();
       return;
     }
-    // Guardamos la reserva (bloquea para siempre por reglas en el servidor)
+    // Guardamos la reserva
     const payload = {
       reserved: true,
       name,
