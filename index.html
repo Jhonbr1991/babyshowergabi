@@ -580,7 +580,7 @@ addEventListener('click', (e) => {
     const pin = prompt('PIN de anfitrión para cancelar:');
     if(!pin) return;
     const ref = reservationsRef.child(key);
-    ref.get().then(snap => {
+    ref.once('value').then(snap => {
       if(!snap.exists() || !snap.val().reserved){
         alert('Este artículo no está reservado.');
         return Promise.reject('not_reserved');
@@ -615,7 +615,7 @@ qs('#resv_ok').addEventListener('click', async ()=>{
   const item = items[key];
   const ref = reservationsRef.child(key);
   try{
-    const snap = await ref.get();
+    const snap = await ref.once('value');
     if(snap.exists() && snap.val().reserved){
       alert('Este artículo ya fue reservado por otra persona.');
       closeModal();
